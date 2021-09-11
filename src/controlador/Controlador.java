@@ -22,7 +22,9 @@ public class Controlador implements ActionListener {
      private juego objjue;
      private index objind;
      private Modelo objmod = new Modelo();
-     
+     private String opccorrecta;
+     private int rondanum=1;
+     private String nombreJugador="";
    
      public Controlador(ingresar_preguntas objin,index objind, juego objjue )
      {
@@ -32,10 +34,78 @@ public class Controlador implements ActionListener {
       this.objind = objind;
       this.objind.btnJugar.addActionListener(this);
       
-     this.objjue= objjue;
+      this.objjue= objjue;
+      this.objjue.btnVerificar.addActionListener(this);
       
      }
     
+     
+     public void desplegar(int i)
+     {  
+         if(nombreJugador=="")
+         {String nomJugador= JOptionPane.showInputDialog(null,"Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
+          nombreJugador=nomJugador;
+          objjue.lblNomJugador.setText(nomJugador);
+         }
+         
+        if(rondanum>5)
+        { JOptionPane.showMessageDialog(null,"HAS GANADO!! :D, te esperamos para proxima una proxima partida!!");   
+          System.exit(0);
+        
+        }
+
+                int ronda=i;
+                String opccorre="";
+                String opcselec="";
+                ArrayList<Auxiliar> lista = objmod.preguntaConOpciones(objmod.idPreguntaAzar(ronda));
+
+                for (Auxiliar aux:lista)
+                {
+                    objjue.lblPregunta.setText(aux.getDescripcionPregunta());
+
+                    if(aux.getOpcion().equals("A"))
+                    objjue.opcionA.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
+                    if(aux.getOpcion().equals("B"))
+                    objjue.opcionB.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
+                    if(aux.getOpcion().equals("C"))
+                    objjue.opcionC.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
+                    if(aux.getOpcion().equals("D"))
+                    objjue.opcionD.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
+                    
+                    opccorrecta=aux.getOpcionCorrecta();
+                    
+                }
+           
+                
+     }
+     
+     
+     public void verificarRespuesta()
+     {   String opcselec="";
+     
+     
+                    if(objjue.opcionA.isSelected())
+                    opcselec="A";
+                    else if(objjue.opcionB.isSelected())
+                    opcselec="B";
+                    else if(objjue.opcionC.isSelected())
+                    opcselec="C";
+                    else if(objjue.opcionD.isSelected())
+                    opcselec="D";
+                   
+                    
+                    if(opcselec.equals(opccorrecta))
+                    {JOptionPane.showMessageDialog(null,"Respuesta Correcta");
+                     rondanum++;
+                    }
+                    else
+                    {JOptionPane.showMessageDialog(null,"Has perdido, no puedes seguir jugando");   
+                    System.exit(0);  
+                    }
+     }
+     
+     
+     
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -90,30 +160,13 @@ public class Controlador implements ActionListener {
         // PROCESO DE JUGAR
         
         if(e.getSource()==objind.btnJugar)
-        {
+         desplegar(rondanum);       
+
+       
         
-        String nomJugador= JOptionPane.showInputDialog(null,"Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
-        objjue.lblNomJugador.setText(nomJugador);
-        
-        ArrayList<Auxiliar> lista = objmod.preguntaConOpciones(objmod.idPreguntaAzar(1));
-        
-        for (Auxiliar aux:lista)
-        {
-            objjue.lblPregunta.setText(aux.getDescripcionPregunta());
-            
-            if(aux.getOpcion().equals("A"))
-            objjue.opcionA.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
-            if(aux.getOpcion().equals("B"))
-            objjue.opcionB.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
-            if(aux.getOpcion().equals("C"))
-            objjue.opcionC.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
-            if(aux.getOpcion().equals("D"))
-            objjue.opcionD.setText(aux.getOpcion()+") "+aux.getDescripcionOpcion());
-        
-        }
-        
-        
-        
+        if(e.getSource()==objjue.btnVerificar)
+        {verificarRespuesta();
+         desplegar(rondanum);
         
         }
         
