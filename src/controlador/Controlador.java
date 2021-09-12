@@ -36,7 +36,82 @@ public class Controlador implements ActionListener {
 
     }
 
-    public void desplegar(int i)
+  
+    @Override
+    public void actionPerformed(ActionEvent e) 
+    {
+
+        //PROCESO PARA AGREGAR PREGUNTA A LA BD
+        if (e.getSource() == objin.btnIngresar) 
+        {
+            char opccorr;
+            if (objin.A.isSelected()) 
+                opccorr = 'A';
+             else if (objin.B.isSelected()) 
+                opccorr = 'B';
+             else if (objin.C.isSelected()) 
+                opccorr = 'C';
+             else 
+                opccorr = 'D';
+            
+
+            Pregunta pre = new Pregunta();
+            pre.setDescripcion(objin.txtPreguntaDescripcion.getText());
+            pre.setOpcionCorrecta(opccorr);
+            pre.setCategoria(Integer.parseInt(objin.comboxCategoria.getSelectedItem().toString()));
+            objmod.ingresarPregunta(pre);
+            int idpre = objmod.idDePregunta(objin.txtPreguntaDescripcion.getText());
+
+            Opcion opc = new Opcion();
+            opc.setOpcA(objin.txtOpcionA.getText());
+            opc.setOpcB(objin.txtOpcionB.getText());
+            opc.setOpcC(objin.txtOpcionC.getText());
+            opc.setOpcD(objin.txtOpcionD.getText());
+
+            if (objmod.ingresarOpciones(opc, idpre)) {
+                JOptionPane.showMessageDialog(null, "Exito al ingresar la pregunta");
+                objin.txtPreguntaDescripcion.setText("");
+                objin.txtOpcionA.setText("");
+                objin.txtOpcionB.setText("");
+                objin.txtOpcionC.setText("");
+                objin.txtOpcionD.setText("");
+                objin.A.setSelected(false);
+                objin.B.setSelected(false);
+                objin.C.setSelected(false);
+                objin.D.setSelected(false);
+                objin.comboxCategoria.setSelectedItem("1");
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Fallo al ingresar la pregunta");
+            }
+
+        }
+
+        // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX, SE DESPLIEGA
+        if (e.getSource() == objind.btnJugar) {
+            desplegar(rondanum);
+            
+        }
+
+        // SE VERIFICA LA RESPUESTA 
+        if (e.getSource() == objjue.btnVerificar) {
+            verificarRespuesta();
+            
+
+        }
+        // CERRAR VENTANA DE INGRESAR PREGUNTA Y VOLVER AL INDEX
+        if(e.getSource()== objin.bntIngPregVolver){
+            objin.dispose();
+            objind.setVisible(true);
+            
+            
+        }
+        
+        
+    }
+    
+    
+     public void desplegar(int i)
     {
         if ("".equals(nombreJugador)) {
             String nomJugador = JOptionPane.showInputDialog(null, "Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
@@ -108,81 +183,6 @@ public class Controlador implements ActionListener {
             objind.setVisible(true);
         }
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) 
-    {
-
-        //PROCESO PARA AGREGAR PREGUNTA A LA BD
-        if (e.getSource() == objin.btnIngresar) 
-        {
-            char opccorr;
-            if (objin.A.isSelected()) 
-                opccorr = 'A';
-             else if (objin.B.isSelected()) 
-                opccorr = 'B';
-             else if (objin.C.isSelected()) 
-                opccorr = 'C';
-             else 
-                opccorr = 'D';
-            
-
-            Pregunta pre = new Pregunta();
-            pre.setDescripcion(objin.txtPreguntaDescripcion.getText());
-            pre.setOpcionCorrecta(opccorr);
-            pre.setCategoria(Integer.parseInt(objin.comboxCategoria.getSelectedItem().toString()));
-            objmod.ingresarPregunta(pre);
-            int idpre = objmod.idDePregunta(objin.txtPreguntaDescripcion.getText());
-
-            Opcion opc = new Opcion();
-            opc.setOpcA(objin.txtOpcionA.getText());
-            opc.setOpcB(objin.txtOpcionB.getText());
-            opc.setOpcC(objin.txtOpcionC.getText());
-            opc.setOpcD(objin.txtOpcionD.getText());
-
-            if (objmod.ingresarOpciones(opc, idpre)) {
-                JOptionPane.showMessageDialog(null, "Exito al ingresar la pregunta");
-                objin.txtPreguntaDescripcion.setText("");
-                objin.txtOpcionA.setText("");
-                objin.txtOpcionB.setText("");
-                objin.txtOpcionC.setText("");
-                objin.txtOpcionD.setText("");
-                objin.A.setSelected(false);
-                objin.B.setSelected(false);
-                objin.C.setSelected(false);
-                objin.D.setSelected(false);
-                objin.comboxCategoria.setSelectedItem("1");
-
-            } else {
-                JOptionPane.showMessageDialog(null, "Fallo al ingresar la pregunta");
-            }
-
-        }
-
-        // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX, SE DESPLIEGA
-        if (e.getSource() == objind.btnJugar) {
-            desplegar(rondanum);
-            
-        }
-
-        // SE VERIFICA LA RESPUESTA Y SE VUELVE A DESPLEGAR LA VENTANA PERO CON EL SIGUIENTE NIVEL
-        if (e.getSource() == objjue.btnVerificar) {
-            verificarRespuesta();
-            
-
-        }
-
-        if(e.getSource()== objin.bntIngPregVolver){
-            objin.dispose();
-            objind.setVisible(true);
-            
-            
-        }
-        
-        
-    }
-    
-    
     
     
 }
