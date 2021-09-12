@@ -8,6 +8,7 @@ import modelo.Auxiliar;
 import modelo.Modelo;
 import modelo.Opcion;
 import modelo.Pregunta;
+import modelo.Historico;
 import vistas.ingresar_preguntas;
 import vistas.juego;
 import vistas.index;
@@ -23,6 +24,8 @@ public class Controlador implements ActionListener {
     private String nombreJugador = "";
     private int puntosAcumulados=500;
     private int puntosxRonda;
+    private Historico objHistorico;
+
 
     public Controlador(ingresar_preguntas objIngresarPreguntas, index objIndex, juego objJuego) {
         this.objIngresarPreguntas = objIngresarPreguntas;
@@ -70,12 +73,12 @@ public class Controlador implements ActionListener {
 
         }
 
-        // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX, SE DESPLIEGA
+        // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX
         if (e.getSource() == objIndex.btnJugar) {
             desplegar(numeroDeRonda);    
         }
 
-        // SE VERIFICA LA RESPUESTA 
+        // SE VERIFICA LA RESPUESTA EN EL JUEGO
         if (e.getSource() == objJuego.btnVerificar) {
             verificarRespuesta();
         }
@@ -91,15 +94,21 @@ public class Controlador implements ActionListener {
         int respuesta = JOptionPane.showConfirmDialog(null,"¿Esta seguro de retirarse con un acumulado de "+puntosAcumulados+" puntos?","Abandonar Partida",JOptionPane.YES_NO_OPTION);
             
             if(respuesta==0)
-            reiniciarJuego();
+            {  objHistorico = new Historico(nombreJugador,"Si","No",numeroDeRonda,puntosAcumulados);
+            
+                if(objModelo.ingresarHistorico(objHistorico))
+                {JOptionPane.showMessageDialog(null,"Se inserto la partida al historico correctamente.");}
+                else
+                {JOptionPane.showMessageDialog(null,"Fallo al insertar la partida al historico.");} 
+                
+               reiniciarJuego();
+            }
 
         }
-               
+        
+        // MIRAR EL HISTORICO DEL JUEGO      
         if(e.getSource()== objIndex.btnHistorico){
-            if(objModelo.ingresarFecha())
-            JOptionPane.showMessageDialog(null,"Si se ingreso la fecha");
-            else
-            JOptionPane.showMessageDialog(null,"yape");  
+              
         }
         
         
@@ -109,13 +118,20 @@ public class Controlador implements ActionListener {
      public void desplegar(int rondaActualRecibida)
     {
         if ("".equals(nombreJugador)) {
-            String nomJugador = JOptionPane.showInputDialog(null, "Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
-            nombreJugador = nomJugador;
-            objJuego.lblNomJugador.setText(nomJugador);
+            String auxNombreJugador = JOptionPane.showInputDialog(null, "Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
+            nombreJugador = auxNombreJugador;
+            objJuego.lblNomJugador.setText(auxNombreJugador);
         }
 
         if (numeroDeRonda > 5) {
             JOptionPane.showMessageDialog(null, "HAS GANADO!! :D, te esperamos para proxima una proxima partida!!","FELICITACIONES HAS GANADO EL JUEGO!!",JOptionPane.INFORMATION_MESSAGE);
+            
+            objHistorico = new Historico(nombreJugador,"No","Si",numeroDeRonda,puntosAcumulados);
+            if(objModelo.ingresarHistorico(objHistorico))
+            {JOptionPane.showMessageDialog(null,"Se inserto la partida al historico correctamente.");}
+            else
+            {JOptionPane.showMessageDialog(null,"Fallo al insertar la partida al historico.");} 
+            
             reiniciarJuego();
         }
 
@@ -162,6 +178,13 @@ public class Controlador implements ActionListener {
         
         else {
             JOptionPane.showMessageDialog(null, "Has perdido, no puedes seguir jugando. Pierdes el premio acumulado de "+puntosAcumulados+" puntos", "Respuesta Incorrecta",JOptionPane.INFORMATION_MESSAGE);
+            
+            objHistorico = new Historico(nombreJugador,"No","No",numeroDeRonda,puntosAcumulados);
+            if(objModelo.ingresarHistorico(objHistorico))
+            {JOptionPane.showMessageDialog(null,"Se inserto la partida al historico correctamente.");}
+            else
+            {JOptionPane.showMessageDialog(null,"Fallo al insertar la partida al historico.");}
+            
             reiniciarJuego();
         }
     }
