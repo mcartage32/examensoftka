@@ -24,7 +24,8 @@ Como se menciono anteriormente la persistencia de los datos se manejo de manera 
 
 Para usar la base de datos de manera local, adjunto el siguiente link: https://drive.google.com/file/d/16eElA838ODAB7u8w7U5-EXxvj1pAo_HB/view?usp=sharing
 
-Alli podras encontrar un archivo .zip donde estara: un archivo .sql y el script correspondiente a la creacion de la base de datos.  
+Alli podras encontrar un archivo .zip donde estara: un archivo .sql, el script correspondiente a la creacion de la base de datos y la carpeta del proyecto generada por NetBeans por si existe algun problema al hora de clonar el repositorio.  
+
 Si usas el archivo .sql, recuerda primero crear la base de datos con el nombre "examensoftka" y luego importar el archivo .sql
 
 En la base de datos encontraras: 25 preguntas (5 por cada categoria) y algunos datos de partidas ya jugadas (para el funcionamiento del historico).
