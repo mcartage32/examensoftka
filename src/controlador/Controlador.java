@@ -4,11 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import modelo.Auxiliar;
 import modelo.Modelo;
 import modelo.Opcion;
 import modelo.Pregunta;
 import modelo.Historico;
+import vistas.historico;
 import vistas.ingresar_preguntas;
 import vistas.juego;
 import vistas.index;
@@ -25,9 +27,11 @@ public class Controlador implements ActionListener {
     private int puntosAcumulados=500;
     private int puntosxRonda;
     private Historico objHistorico;
+    private historico objVistaHistorico;
 
 
-    public Controlador(ingresar_preguntas objIngresarPreguntas, index objIndex, juego objJuego) {
+    public Controlador(ingresar_preguntas objIngresarPreguntas, index objIndex, juego objJuego, historico objVistaHistorico) {
+        
         this.objIngresarPreguntas = objIngresarPreguntas;
         this.objIngresarPreguntas.btnIngresar.addActionListener(this);
         this.objIngresarPreguntas.bntIngPregVolver.addActionListener(this);
@@ -39,6 +43,9 @@ public class Controlador implements ActionListener {
         this.objJuego = objJuego;
         this.objJuego.btnVerificar.addActionListener(this);
         this.objJuego.btnSalirDelJuego.addActionListener(this);
+        
+        this.objVistaHistorico = objVistaHistorico;
+        this.objVistaHistorico.bntVolverHistorico.addActionListener(this);
 
     }
 
@@ -89,6 +96,13 @@ public class Controlador implements ActionListener {
             objIndex.setVisible(true);
         }
         
+        // CERRAR VENTANA DE HISTORICO Y VOLVER AL INDEX
+        if(e.getSource()== objVistaHistorico.bntVolverHistorico){
+            objVistaHistorico.dispose();
+            objIndex.setVisible(true);
+        }
+        
+        
         // SALIR DEL JUEGO CON EL ACUMULADO
         if(e.getSource()== objJuego.btnSalirDelJuego){
         int respuesta = JOptionPane.showConfirmDialog(null,"¿Esta seguro de retirarse con un acumulado de "+puntosAcumulados+" puntos?","Abandonar Partida",JOptionPane.YES_NO_OPTION);
@@ -108,12 +122,45 @@ public class Controlador implements ActionListener {
         
         // MIRAR EL HISTORICO DEL JUEGO      
         if(e.getSource()== objIndex.btnHistorico){
-              
+
+             limpiarTabla();
+             listarTablaHistorico();
         }
         
         
     }
     
+    
+     public void limpiarTabla()
+     {
+        DefaultTableModel tablaAuxiliar = (DefaultTableModel)objVistaHistorico.tablaHistorico.getModel();
+        int a = objVistaHistorico.tablaHistorico.getRowCount()-1;
+        for (int i = a; i >= 0; i--) 
+        {tablaAuxiliar.removeRow(tablaAuxiliar.getRowCount()-1);}
+     
+     }
+     
+    
+    public void listarTablaHistorico()
+    { DefaultTableModel tablaAuxiliar = new DefaultTableModel();
+      tablaAuxiliar = (DefaultTableModel)objVistaHistorico.tablaHistorico.getModel();
+      ArrayList<Historico> lista = objModelo.obtenerDatosDelHistorico();
+      Object[] object = new Object[6];
+              
+              for(int i=0; i<lista.size();i++)
+              {
+                object[0]=lista.get(i).getNombreJugador();
+                object[1]=lista.get(i).getFecha();
+                object[2]=lista.get(i).getRetiro();
+                object[3]=lista.get(i).getGano();
+                object[4]=lista.get(i).getUltimaRonda();
+                object[5]=lista.get(i).getPuntosAcumulados();
+                tablaAuxiliar.addRow(object);
+              }
+              
+              objVistaHistorico.tablaHistorico.setModel(tablaAuxiliar); 
+    }
+
     
      public void desplegar(int rondaActualRecibida)
     {
@@ -141,7 +188,7 @@ public class Controlador implements ActionListener {
         objJuego.lblPuntosAcumulados.setText(String.valueOf(puntosAcumulados));
         objJuego.lblPuntosxRonda.setText(String.valueOf(puntosxRonda)+" puntos");
         
-        ArrayList<Auxiliar> lista = objModelo.preguntaConOpciones(objModelo.idPreguntaAzar(rondaActual));
+        ArrayList<Auxiliar> lista = objModelo.obtenerPreguntaConOpciones(objModelo.idPreguntaAzar(rondaActual));
         for (Auxiliar aux : lista) 
         {
             objJuego.lblPregunta.setText(aux.getDescripcionPregunta());
