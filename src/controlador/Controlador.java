@@ -14,27 +14,28 @@ import vistas.index;
 
 public class Controlador implements ActionListener {
     
-    private ingresar_preguntas objin;
-    private juego objjue;
-    private index objind;
-    private Modelo objmod = new Modelo();
-    private String opccorrecta;
-    private int rondanum = 1;
+    private ingresar_preguntas objIngresarPreguntas;
+    private juego objJuego;
+    private index objIndex;
+    private Modelo objModelo = new Modelo();
+    private String opcionCorrecta;
+    private int numeroDeRonda = 1;
     private String nombreJugador = "";
-    private int premio=500;
-    private int puntosxronda;
+    private int puntosAcumulados=500;
+    private int puntosxRonda;
 
-    public Controlador(ingresar_preguntas objin, index objind, juego objjue) {
-        this.objin = objin;
-        this.objin.btnIngresar.addActionListener(this);
-        this.objin.bntIngPregVolver.addActionListener(this);
+    public Controlador(ingresar_preguntas objIngresarPreguntas, index objIndex, juego objJuego) {
+        this.objIngresarPreguntas = objIngresarPreguntas;
+        this.objIngresarPreguntas.btnIngresar.addActionListener(this);
+        this.objIngresarPreguntas.bntIngPregVolver.addActionListener(this);
 
-        this.objind = objind;
-        this.objind.btnJugar.addActionListener(this);
+        this.objIndex = objIndex;
+        this.objIndex.btnJugar.addActionListener(this);
+        this.objIndex.btnHistorico.addActionListener(this);
 
-        this.objjue = objjue;
-        this.objjue.btnVerificar.addActionListener(this);
-        this.objjue.btnSalirDelJuego.addActionListener(this);
+        this.objJuego = objJuego;
+        this.objJuego.btnVerificar.addActionListener(this);
+        this.objJuego.btnSalirDelJuego.addActionListener(this);
 
     }
 
@@ -44,161 +45,184 @@ public class Controlador implements ActionListener {
     {
 
         //PROCESO PARA AGREGAR PREGUNTA A LA BD
-        if (e.getSource() == objin.btnIngresar) 
+        if (e.getSource() == objIngresarPreguntas.btnIngresar) 
         {
-            char opccorr;
-            if (objin.A.isSelected()) 
-                opccorr = 'A';
-             else if (objin.B.isSelected()) 
-                opccorr = 'B';
-             else if (objin.C.isSelected()) 
-                opccorr = 'C';
-             else 
-                opccorr = 'D';
-            
+            Pregunta pregunta = new Pregunta();
+            pregunta.setDescripcion(objIngresarPreguntas.txtPreguntaDescripcion.getText());
+            pregunta.setOpcionCorrecta(obtenerOpcionSeleccionadaEnIngresarPreguntas());
+            pregunta.setCategoria(Integer.parseInt(objIngresarPreguntas.comboxCategoria.getSelectedItem().toString()));
+            objModelo.ingresarPregunta(pregunta);
+            int idDePreguntaIngresada = objModelo.obtenerIdDePregunta(objIngresarPreguntas.txtPreguntaDescripcion.getText());
 
-            Pregunta pre = new Pregunta();
-            pre.setDescripcion(objin.txtPreguntaDescripcion.getText());
-            pre.setOpcionCorrecta(opccorr);
-            pre.setCategoria(Integer.parseInt(objin.comboxCategoria.getSelectedItem().toString()));
-            objmod.ingresarPregunta(pre);
-            int idpre = objmod.idDePregunta(objin.txtPreguntaDescripcion.getText());
+            Opcion opcion = new Opcion();
+            opcion.setOpcA(objIngresarPreguntas.txtOpcionA.getText());
+            opcion.setOpcB(objIngresarPreguntas.txtOpcionB.getText());
+            opcion.setOpcC(objIngresarPreguntas.txtOpcionC.getText());
+            opcion.setOpcD(objIngresarPreguntas.txtOpcionD.getText());
 
-            Opcion opc = new Opcion();
-            opc.setOpcA(objin.txtOpcionA.getText());
-            opc.setOpcB(objin.txtOpcionB.getText());
-            opc.setOpcC(objin.txtOpcionC.getText());
-            opc.setOpcD(objin.txtOpcionD.getText());
-
-            if (objmod.ingresarOpciones(opc, idpre)) {
+            if (objModelo.ingresarOpciones(opcion, idDePreguntaIngresada)) {
                 JOptionPane.showMessageDialog(null, "Exito al ingresar la pregunta");
-                objin.txtPreguntaDescripcion.setText("");
-                objin.txtOpcionA.setText("");
-                objin.txtOpcionB.setText("");
-                objin.txtOpcionC.setText("");
-                objin.txtOpcionD.setText("");
-                objin.A.setSelected(false);
-                objin.B.setSelected(false);
-                objin.C.setSelected(false);
-                objin.D.setSelected(false);
-                objin.comboxCategoria.setSelectedItem("1");
-
-            } else {
+                limpiarFormularioIngresarPreguntas();
+            } 
+            else {
                 JOptionPane.showMessageDialog(null, "Fallo al ingresar la pregunta");
             }
 
         }
 
         // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX, SE DESPLIEGA
-        if (e.getSource() == objind.btnJugar) {
-            desplegar(rondanum);    
+        if (e.getSource() == objIndex.btnJugar) {
+            desplegar(numeroDeRonda);    
         }
 
         // SE VERIFICA LA RESPUESTA 
-        if (e.getSource() == objjue.btnVerificar) {
+        if (e.getSource() == objJuego.btnVerificar) {
             verificarRespuesta();
         }
         
         // CERRAR VENTANA DE INGRESAR PREGUNTA Y VOLVER AL INDEX
-        if(e.getSource()== objin.bntIngPregVolver){
-            objin.dispose();
-            objind.setVisible(true);
+        if(e.getSource()== objIngresarPreguntas.bntIngPregVolver){
+            objIngresarPreguntas.dispose();
+            objIndex.setVisible(true);
         }
+        
+        // SALIR DEL JUEGO CON EL ACUMULADO
+        if(e.getSource()== objJuego.btnSalirDelJuego){
+        int respuesta = JOptionPane.showConfirmDialog(null,"¿Esta seguro de retirarse con un acumulado de "+puntosAcumulados+" puntos?","Abandonar Partida",JOptionPane.YES_NO_OPTION);
             
-        if(e.getSource()== objjue.btnSalirDelJuego){
-         int res = JOptionPane.showConfirmDialog(null,"¿Esta seguro de retirarse con un acumulado de "+premio+" puntos?","Abandonar Partida",JOptionPane.YES_NO_OPTION);
-            
-            if(res==0){
-                objjue.dispose();
-                nombreJugador="";
-                rondanum=1;
-                premio=500;
-                objind.setVisible(true);
-            }
-         
+            if(respuesta==0)
+            reiniciarJuego();
+
         }
                
-        
+        if(e.getSource()== objIndex.btnHistorico){
+            if(objModelo.ingresarFecha())
+            JOptionPane.showMessageDialog(null,"Si se ingreso la fecha");
+            else
+            JOptionPane.showMessageDialog(null,"yape");  
+        }
         
         
     }
     
     
-     public void desplegar(int i)
+     public void desplegar(int rondaActualRecibida)
     {
         if ("".equals(nombreJugador)) {
             String nomJugador = JOptionPane.showInputDialog(null, "Ingrese el nombre del jugador:", "Nombre del Jugador", JOptionPane.INFORMATION_MESSAGE);
             nombreJugador = nomJugador;
-            objjue.lblNomJugador.setText(nomJugador);
+            objJuego.lblNomJugador.setText(nomJugador);
         }
 
-        if (rondanum > 5) {
+        if (numeroDeRonda > 5) {
             JOptionPane.showMessageDialog(null, "HAS GANADO!! :D, te esperamos para proxima una proxima partida!!","FELICITACIONES HAS GANADO EL JUEGO!!",JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0);
+            reiniciarJuego();
         }
 
-        int ronda = i;
-        puntosxronda=objmod.premioAzar(ronda);
-        objjue.lblRonda.setText(String.valueOf(ronda));
-        objjue.lblPuntosAcumulados.setText(String.valueOf(premio));
-        objjue.lblPuntosxRonda.setText(String.valueOf(puntosxronda)+" puntos");
-        String opccorre = "";
-        String opcselec = "";
+        int rondaActual = rondaActualRecibida;
+        puntosxRonda=objModelo.premioAzar(rondaActual);
+        objJuego.lblRonda.setText(String.valueOf(rondaActual));
+        objJuego.lblPuntosAcumulados.setText(String.valueOf(puntosAcumulados));
+        objJuego.lblPuntosxRonda.setText(String.valueOf(puntosxRonda)+" puntos");
         
-        ArrayList<Auxiliar> lista = objmod.preguntaConOpciones(objmod.idPreguntaAzar(ronda));
-
-        for (Auxiliar aux : lista) {
-            objjue.lblPregunta.setText(aux.getDescripcionPregunta());
+        ArrayList<Auxiliar> lista = objModelo.preguntaConOpciones(objModelo.idPreguntaAzar(rondaActual));
+        for (Auxiliar aux : lista) 
+        {
+            objJuego.lblPregunta.setText(aux.getDescripcionPregunta());
 
             if (aux.getOpcion().equals("A")) {
-                objjue.opcionA.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
+                objJuego.opcionA.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
             }
             if (aux.getOpcion().equals("B")) {
-                objjue.opcionB.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
+                objJuego.opcionB.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
             }
             if (aux.getOpcion().equals("C")) {
-                objjue.opcionC.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
+                objJuego.opcionC.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
             }
             if (aux.getOpcion().equals("D")) {
-                objjue.opcionD.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
+                objJuego.opcionD.setText(aux.getOpcion() + ") " + aux.getDescripcionOpcion());
             }
 
-            opccorrecta = aux.getOpcionCorrecta();
+            opcionCorrecta = aux.getOpcionCorrecta();
 
         }
         
-        
-
     }
 
     public void verificarRespuesta() 
     {
-        String opcselec = "";
+        String opcionSeleccionada = obtenerOpcionSeleccionadaEnElJuego();
 
-        if (objjue.opcionA.isSelected()) 
-            opcselec = "A";
-        else if (objjue.opcionB.isSelected()) 
-            opcselec = "B";
-         else if (objjue.opcionC.isSelected()) 
-            opcselec = "C";
-         else if (objjue.opcionD.isSelected()) 
-            opcselec = "D";
-        
-
-        if (opcselec.equals(opccorrecta)) {
+        if (opcionSeleccionada.equals(opcionCorrecta)) {
             JOptionPane.showMessageDialog(null, "Respuesta correcta, avanzas a la siguiente ronda", "Felicitaciones",JOptionPane.INFORMATION_MESSAGE);
-            rondanum++;
-            premio=premio+puntosxronda;
-            desplegar(rondanum);
-        } else {
-            JOptionPane.showMessageDialog(null, "Has perdido, no puedes seguir jugando. Pierdes el premio acumulado de "+premio+" puntos", "Respuesta Incorrecta",JOptionPane.INFORMATION_MESSAGE);
-            objjue.dispose();
-            nombreJugador="";
-            rondanum=1;
-            premio=500;
-            objind.setVisible(true);
+            numeroDeRonda++;
+            puntosAcumulados=puntosAcumulados+puntosxRonda;
+            desplegar(numeroDeRonda);   
+        } 
+        
+        else {
+            JOptionPane.showMessageDialog(null, "Has perdido, no puedes seguir jugando. Pierdes el premio acumulado de "+puntosAcumulados+" puntos", "Respuesta Incorrecta",JOptionPane.INFORMATION_MESSAGE);
+            reiniciarJuego();
         }
     }
+    
+    public void reiniciarJuego()
+    { objJuego.dispose();
+      nombreJugador="";
+      numeroDeRonda=1;
+      puntosAcumulados=500;
+      objIndex.setVisible(true);
+    }        
+    
+    
+    public char obtenerOpcionSeleccionadaEnIngresarPreguntas()
+    { char opcionSeleccionada;
+    
+             if (objIngresarPreguntas.rdOpcionA.isSelected()) 
+                opcionSeleccionada = 'A';
+             else if (objIngresarPreguntas.rdOpcionB.isSelected()) 
+                opcionSeleccionada = 'B';
+             else if (objIngresarPreguntas.rdOpcionC.isSelected()) 
+                opcionSeleccionada = 'C';
+             else 
+                opcionSeleccionada = 'D';
+             
+    return opcionSeleccionada;
+    }
+    
+    
+    public String obtenerOpcionSeleccionadaEnElJuego()
+    { String opcionSeleccionada="";
+    
+        if (objJuego.opcionA.isSelected()) 
+            opcionSeleccionada = "A";
+        else if (objJuego.opcionB.isSelected()) 
+            opcionSeleccionada = "B";
+         else if (objJuego.opcionC.isSelected()) 
+            opcionSeleccionada = "C";
+         else if (objJuego.opcionD.isSelected()) 
+            opcionSeleccionada = "D";
+
+      return opcionSeleccionada;
+    }        
+    
+    public void limpiarFormularioIngresarPreguntas()
+    {  objIngresarPreguntas.txtPreguntaDescripcion.setText("");
+       objIngresarPreguntas.txtOpcionA.setText("");
+       objIngresarPreguntas.txtOpcionB.setText("");
+       objIngresarPreguntas.txtOpcionC.setText("");
+       objIngresarPreguntas.txtOpcionD.setText("");
+       objIngresarPreguntas.rdOpcionA.setSelected(false);
+       objIngresarPreguntas.rdOpcionB.setSelected(false);
+       objIngresarPreguntas.rdOpcionC.setSelected(false);
+       objIngresarPreguntas.rdOpcionD.setSelected(false);
+       objIngresarPreguntas.comboxCategoria.setSelectedIndex(1);
+    }
+    
+    
+  
+    
+    
     
     
 }
