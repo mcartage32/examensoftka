@@ -22,7 +22,7 @@ Estos programas son los mismos que se usaron para la realizacion del proyecto.
 ### Base de datos
 Como se menciono anteriormente la persistencia de los datos se manejo de manera local (localhost).  
 
-Para usar la base de datos de manera local, adjunto el siguiente link: https://drive.google.com/file/d/11HMcNJBXxqYyQIpegVf6DzXqT-oAFLN0/view?usp=sharing  
+Para usar la base de datos de manera local, adjunto el siguiente link: https://drive.google.com/file/d/16eElA838ODAB7u8w7U5-EXxvj1pAo_HB/view?usp=sharing
 
 Alli podras encontrar un archivo .zip donde estara: un archivo .sql y el script correspondiente a la creacion de la base de datos.  
 Si usas el archivo .sql, recuerda primero crear la base de datos con el nombre "examensoftka" y luego importar el archivo .sql
