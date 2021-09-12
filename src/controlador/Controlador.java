@@ -21,7 +21,8 @@ public class Controlador implements ActionListener {
     private String opccorrecta;
     private int rondanum = 1;
     private String nombreJugador = "";
-    private int premio=10000;
+    private int premio=500;
+    private int puntosxronda;
 
     public Controlador(ingresar_preguntas objin, index objind, juego objjue) {
         this.objin = objin;
@@ -33,6 +34,7 @@ public class Controlador implements ActionListener {
 
         this.objjue = objjue;
         this.objjue.btnVerificar.addActionListener(this);
+        this.objjue.btnSalirDelJuego.addActionListener(this);
 
     }
 
@@ -89,23 +91,34 @@ public class Controlador implements ActionListener {
 
         // CUANDO SE OPRIME EL BOTON DE JUGAR EN EL INDEX, SE DESPLIEGA
         if (e.getSource() == objind.btnJugar) {
-            desplegar(rondanum);
-            
+            desplegar(rondanum);    
         }
 
         // SE VERIFICA LA RESPUESTA 
         if (e.getSource() == objjue.btnVerificar) {
             verificarRespuesta();
-            
-
         }
+        
         // CERRAR VENTANA DE INGRESAR PREGUNTA Y VOLVER AL INDEX
         if(e.getSource()== objin.bntIngPregVolver){
             objin.dispose();
             objind.setVisible(true);
-            
-            
         }
+            
+        if(e.getSource()== objjue.btnSalirDelJuego){
+         int res = JOptionPane.showConfirmDialog(null,"¿Esta seguro de retirarse con un acumulado de "+premio+" puntos?","Abandonar Partida",JOptionPane.YES_NO_OPTION);
+            
+            if(res==0){
+                objjue.dispose();
+                nombreJugador="";
+                rondanum=1;
+                premio=500;
+                objind.setVisible(true);
+            }
+         
+        }
+               
+        
         
         
     }
@@ -125,10 +138,13 @@ public class Controlador implements ActionListener {
         }
 
         int ronda = i;
-        objjue.lblPremio.setText(String.valueOf(premio)+" pesos colombianos");
+        puntosxronda=objmod.premioAzar(ronda);
         objjue.lblRonda.setText(String.valueOf(ronda));
+        objjue.lblPuntosAcumulados.setText(String.valueOf(premio));
+        objjue.lblPuntosxRonda.setText(String.valueOf(puntosxronda)+" puntos");
         String opccorre = "";
         String opcselec = "";
+        
         ArrayList<Auxiliar> lista = objmod.preguntaConOpciones(objmod.idPreguntaAzar(ronda));
 
         for (Auxiliar aux : lista) {
@@ -172,14 +188,14 @@ public class Controlador implements ActionListener {
         if (opcselec.equals(opccorrecta)) {
             JOptionPane.showMessageDialog(null, "Respuesta correcta, avanzas a la siguiente ronda", "Felicitaciones",JOptionPane.INFORMATION_MESSAGE);
             rondanum++;
-            premio=premio+15500;
+            premio=premio+puntosxronda;
             desplegar(rondanum);
         } else {
-            JOptionPane.showMessageDialog(null, "Has perdido, no puedes seguir jugando. Pierdes el premio acumulado de "+premio+" pesos colombianos", "Respuesta Incorrecta",JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Has perdido, no puedes seguir jugando. Pierdes el premio acumulado de "+premio+" puntos", "Respuesta Incorrecta",JOptionPane.INFORMATION_MESSAGE);
             objjue.dispose();
             nombreJugador="";
             rondanum=1;
-            premio=10000;
+            premio=500;
             objind.setVisible(true);
         }
     }
